@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# Build BoringSSL for Android with 16KB page size support
+# See: https://developer.android.com/guide/practices/page-sizes
+#
 
 # Exit immediately if a command exits with a non-zero status.
 set -e
@@ -6,6 +10,10 @@ set -e
 # --- Configuration ---
 DEFAULT_ANDROID_API_LEVEL="android-29"
 ANDROID_ABIS=("armeabi-v7a" "arm64-v8a" "x86" "x86_64")
+
+# 16KB page size linker flag for Android 15+ compatibility
+# This ensures ELF segments are aligned to 16KB boundaries
+PAGE_SIZE_LDFLAGS="-Wl,-z,max-page-size=16384"
 # ---
 
 # Get the directory of the script
@@ -61,6 +69,8 @@ for ABI in "${ANDROID_ABIS[@]}"; do
   cmake -DANDROID_ABI=${ABI} \
         -DANDROID_PLATFORM=${ANDROID_API_LEVEL} \
         -DCMAKE_TOOLCHAIN_FILE="${CMAKE_TOOLCHAIN_FILE}" \
+        -DCMAKE_SHARED_LINKER_FLAGS="${PAGE_SIZE_LDFLAGS}" \
+        -DCMAKE_EXE_LINKER_FLAGS="${PAGE_SIZE_LDFLAGS}" \
         -GNinja -B "${BUILD_DIR}" "${BORINGSSL_SRC_DIR}"
 
   echo "Building for ABI: ${ABI}"
