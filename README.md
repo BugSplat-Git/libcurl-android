@@ -2,6 +2,10 @@
 
 This repository contains scripts to build libcurl for Android, statically linked against BoringSSL.
 
+## 16KB Page Size Support
+
+Starting November 1st, 2025, Google Play requires all apps targeting Android 15+ to [support 16 KB page sizes](https://developer.android.com/guide/practices/page-sizes). These build scripts automatically include the required linker flags (`-Wl,-z,max-page-size=16384`) to ensure ELF segments are properly aligned for 16KB page size compatibility.
+
 ## Prerequisites
 
 *   **Android NDK:** You need the Android NDK installed. The build script requires the path to your NDK installation.

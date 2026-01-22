@@ -1,5 +1,5 @@
 #!/bin/bash
-export ANDROID_NDK="$HOME/Library/Android/sdk/ndk/27.2.12479018"
+export ANDROID_NDK="$HOME/Library/Android/sdk/ndk/28.2.13676358"
 
 if [ ! -d "$ANDROID_NDK" ]; then
   echo "Error: The ANDROID_NDK path '$ANDROID_NDK' does not exist or is not a directory. Please set the correct path in build.sh." >&2

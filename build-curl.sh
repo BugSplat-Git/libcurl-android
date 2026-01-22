@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# Build libcurl for Android with 16KB page size support
+# See: https://developer.android.com/guide/practices/page-sizes
+#
 
 set -e
 
@@ -12,6 +16,10 @@ SOURCE_DIR="$SCRIPT_DIR" # Assuming the script is in the curl source root
 # --- Configuration ---
 DEFAULT_ANDROID_API_LEVEL=29
 ABIS=("armeabi-v7a" "arm64-v8a" "x86" "x86_64")
+
+# 16KB page size linker flag for Android 15+ compatibility
+# This ensures ELF segments are aligned to 16KB boundaries
+PAGE_SIZE_LDFLAGS="-Wl,-z,max-page-size=16384"
 # ---
 
 # --- Argument Parsing ---
@@ -92,7 +100,9 @@ for ABI in "${ABIS[@]}"; do
         -DOPENSSL_INCLUDE_DIR="$BORINGSSL_INCLUDE_DIR" \
         -DOPENSSL_SSL_LIBRARY="$BORINGSSL_SSL_LIB" \
         -DOPENSSL_CRYPTO_LIBRARY="$BORINGSSL_CRYPTO_LIB" \
-        -DCURL_USE_LIBPSL=OFF && \
+        -DCURL_USE_LIBPSL=OFF \
+        -DCMAKE_SHARED_LINKER_FLAGS="$PAGE_SIZE_LDFLAGS" \
+        -DCMAKE_EXE_LINKER_FLAGS="$PAGE_SIZE_LDFLAGS" && \
     cmake --build . --target install --config Release -j $(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)
   ) || { echo "Error building for ABI $ABI"; exit 1; }
 
